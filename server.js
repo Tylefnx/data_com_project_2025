@@ -4,12 +4,9 @@ import readline from "readline";
 const HOST = "127.0.0.1";
 const PORT = 5000;
 
-// --- BOZMA FONKSİYONLARI ---
-
 function randomInt(max) { return Math.floor(Math.random() * max); }
 function randomChar() { return String.fromCharCode(32 + randomInt(95)); }
 
-// 1. Bit Flip
 function bitFlipInString(s) {
   const buf = Buffer.from(s, "utf8");
   if (buf.length === 0) return s;
@@ -19,7 +16,6 @@ function bitFlipInString(s) {
   return buf.toString("utf8");
 }
 
-// 2. Character Substitution
 function charSubstitution(s) {
   if (!s.length) return s;
   const arr = s.split("");
@@ -27,20 +23,17 @@ function charSubstitution(s) {
   return arr.join("");
 }
 
-// 3. Character Deletion
 function charDeletion(s) {
   if (s.length < 1) return s;
   const i = randomInt(s.length);
   return s.slice(0, i) + s.slice(i + 1);
 }
 
-// 4. Character Insertion
 function charInsertion(s) {
   const i = randomInt(s.length + 1);
   return s.slice(0, i) + randomChar() + s.slice(i);
 }
 
-// 5. Character Swapping
 function charSwapping(s) {
   if (s.length < 2) return s;
   const arr = s.split("");
@@ -49,7 +42,6 @@ function charSwapping(s) {
   return arr.join("");
 }
 
-// 6. Multiple Bit Flips
 function multipleBitFlips(s) {
   let corrupted = s;
   const count = 2 + randomInt(3);
@@ -57,7 +49,6 @@ function multipleBitFlips(s) {
   return corrupted;
 }
 
-// 7. Burst Error
 function burstError(s) {
   if (s.length < 3) return charSubstitution(s);
   const arr = s.split("");
@@ -67,7 +58,6 @@ function burstError(s) {
   return arr.join("");
 }
 
-// Fonksiyon Haritası
 const CORRUPTION_METHODS = {
   "1": { name: "Bit Flip", fn: bitFlipInString },
   "2": { name: "Char Substitution", fn: charSubstitution },
@@ -79,8 +69,6 @@ const CORRUPTION_METHODS = {
   "0": { name: "BOZMA (Temiz İlet)", fn: (s) => s }, 
   "R": { name: "Rastgele (Random)", fn: null } 
 };
-
-// --- INTERAKTİF ARAYÜZ ---
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -123,7 +111,6 @@ const server = net.createServer(socket => {
     rl.question(`Seçiminiz nedir? > `, (choice) => {
       let selected = CORRUPTION_METHODS[choice.trim().toUpperCase()];
       
-      // Geçersiz seçimse veya R ise Rastgele seç
       if (!selected || choice.toUpperCase() === "R") {
         const keys = Object.keys(CORRUPTION_METHODS).filter(k => k !== "0" && k !== "R");
         const randomKey = keys[randomInt(keys.length)];
@@ -133,16 +120,13 @@ const server = net.createServer(socket => {
         console.log(`[Manuel] Seçilen yöntem: ${selected.name}`);
       }
 
-      // Veriyi boz
       const corruptedData = selected.fn(originalData);
 
-      // Paketi yeniden oluştur
       const newPacket = `${corruptedData}|${method}|${originalControl}`;
 
       console.log(`İletiliyor: "${originalData}" -> "${corruptedData}"`);
       console.log(`==============================================\n`);
 
-      // Client 2'ye (veya diğerlerine) gönder
       sockets.forEach(sock => {
         if (sock !== socket) sock.write(newPacket);
       });

@@ -19,7 +19,6 @@ client.on("data", chunk => {
   const parts = packet.split("|");
   if (parts.length < 3) return console.log("[Client2] Geçersiz paket:", packet);
 
-  // Split işleminde veri içinde | karakteri varsa bozulmaması için:
   const incomingControl = parts.pop();
   const method = parts.pop();
   const data = parts.join("|"); 
@@ -34,9 +33,8 @@ client.on("data", chunk => {
     case "PARITY2D": computed = parity2D(data); break;
     case "CHECKSUM": computed = internetChecksum(data); break; // EKLENDİ
     case "HAMMING":
-      // Hamming özel durum: Gelen kontrol verisi (encoded string) çözülür
+
       const decoded = hammingDecode(incomingControl);
-      // Karşılaştırma için decoded text tekrar encode edilir
       computed = hammingEncodeString(decoded.text); 
       isHammingCorrected = decoded.corrected;
       hammingText = decoded.text;
@@ -50,13 +48,10 @@ client.on("data", chunk => {
       return;
   }
 
-  // Status Belirleme
   let status = "DATA CORRUPTED";
   if (incomingControl === computed) {
     status = "DATA CORRECT";
   } else if (method === "HAMMING" && isHammingCorrected) {
-    // Hamming'de kontrol bitleri tutmasa bile onarım yapılmış olabilir
-    // Not: Hamming'de logic biraz karışıktır, basitçe:
     status = "DATA CORRECTED (HAMMING)";
   }
 

@@ -9,7 +9,6 @@ import { internetChecksum } from "./utils/checksum.js";
 const HOST = "127.0.0.1";
 const PORT = 5000;
 
-// Kullanıcıdan input almak için arayüz
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout
@@ -17,7 +16,6 @@ const rl = readline.createInterface({
 
 const client = new net.Socket();
 
-// --- METHOD HARİTASI (NUMARA -> METHOD ADI) ---
 const METHOD_MAP = {
   "1": "PARITY",
   "2": "PARITY2D",
@@ -51,7 +49,6 @@ function askForInput() {
       return;
     }
 
-    // Menüyü göster
     console.log("\n--- Yöntem Seç ---");
     console.log("[1] Parity (Tek/Çift)");
     console.log("[2] 2D Parity (Matris)");
@@ -62,7 +59,6 @@ function askForInput() {
 
     rl.question("Seçiminiz (1-5): ", (choice) => {
       
-      // Haritadan yöntemi bul, yoksa varsayılan CRC16 olsun
       const method = METHOD_MAP[choice.trim()] || "CRC16";
       let control = "";
 
@@ -88,7 +84,6 @@ function askForInput() {
             break;
         }
 
-        // Paket formatı: DATA|METHOD|CONTROL
         const packet = `${rawData}|${method}|${control}`;
         
         client.write(packet);
@@ -100,7 +95,6 @@ function askForInput() {
         console.error("   [HATA] Hesaplama hatası:", err.message);
       }
 
-      // Döngü: Tekrar veri iste
       askForInput();
     });
   });
